@@ -22,6 +22,7 @@ Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
 
+
 % Setup some useful variables
 m = size(X, 1);
          
@@ -63,18 +64,73 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
+% -------------------------------------------------------------
+% Part 1
+a1 = [ones(m, 1) X];
+
+z2 = a1 * Theta1';
+a2 = sigmoid(z2);
+a2 = [ones(m, 1) a2];
+
+z3 = a2 * Theta2';
+a3 = sigmoid(z3);
+
+h = a3;
+
+y_vect = zeros(m, num_labels);
+for i = 1:m
+    y_vect(i, y(i))=1;
+end
+
+J = (1 / m) * sum(sum(-1 * y_vect .* log(h) - (1 - y_vect) .* log(1 - h)));
 
 
 
 
+Theta1ExcludingZero = Theta1;
+Theta1ExcludingZero(:,1) = 0;
+
+Theta2ExcludingZero = Theta2;
+Theta2ExcludingZero(:,1) = 0;
+
+% ThetaAll = [Theta1 Theta2];
+
+J = (1 / m) * sum(sum(-1 * y_vect .* log(h) - (1 - y_vect) .* log(1 - h))) ...
+    + (lambda / (2 * m)) * ( sum(sum( Theta1ExcludingZero .^ 2 )) + sum(sum( Theta2ExcludingZero .^ 2)) );
+
+
+% -------------------------------------------------------------
+% Part 2
+
+
+for i = 1:m
+    a_1 = X(i,:);         % 1x400
+    a_1 = [1 a_1];         % 1x401
+    z_2 = a_1 * Theta1';         % 1x401 x 401x25 = 1x25
+    a_2 = sigmoid(z_2);         % 1x25
+    a_2 = [1 a_2];         % 1x26
+
+    z_3 = a_2 * Theta2';         % 1x26 x 26x10
+    a_3 = sigmoid(z_3);         % 1x10
+    
+    delta_3 = a_3 - y_vect(i, :);         % 1x10
+    term = delta_3 * Theta2;         % 1x10 x 10x26 = 1 x 26
+    delta_2 = term(2:end) .* sigmoidGradient(z_2);         % 1x25
+
+    Theta1_grad = Theta1_grad + delta_2' * a_1;         % 25x1 x 1x401
+    Theta2_grad = Theta2_grad + delta_3' * a_2;         % 10x1 x 1x26
+end
+
+Theta1_grad = Theta1_grad / m;
+Theta2_grad = Theta2_grad / m;
 
 
 
+% -------------------------------------------------------------
+% Part 3
 
-
-
-
-
+Theta1_grad = Theta1_grad + (lambda / m) * Theta1ExcludingZero;
+Theta2_grad = Theta2_grad + (lambda / m) * Theta2ExcludingZero;
 
 
 
