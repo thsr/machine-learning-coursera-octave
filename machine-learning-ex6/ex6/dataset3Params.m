@@ -35,7 +35,7 @@ for C_test = [0.01 0.03 0.1 0.3 1 3 10 30]
     
     fprintf('/////////////////\n');
     fprintf('Testing C=%f, sigma=%f\nerror obtained=%f\nSmallest error so far %f\nAt best C, sigma=%f, %f\n', C_test, sigma_test, error, error_min, C_best, sigma_best);
-    fprintf('/////////////////\n'):
+    fprintf('/////////////////\n');
 
     if error < error_min
       error_min = error;
